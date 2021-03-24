@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const Users = require('../model/users')
 const { HttpCode } = require('../helpers/constants')
+const { findByToken } = require('../model/schemas/contact')
 require('dotenv').config()
 const SECRET_KEY = process.env.JWT_SECRET
 
@@ -24,6 +25,7 @@ const reg = async (req, res, next) => {
         id: newUser.id,
         email: newUser.email,
         name: newUser.name,
+        subscription: newUser.subscription,
       },
     })
   } catch (e) {
@@ -40,7 +42,8 @@ const login = async (req, res, next) => {
       return res.status(HttpCode.UNAUTHORIZED).json({
         status: 'error',
         code: HttpCode.UNAUTHORIZED,
-        message: 'Invalid credentials',
+        data: 'UNAUTHORIZED',
+        message: 'Email or password is wrong',
       })
     }
     const id = user._id
@@ -51,17 +54,39 @@ const login = async (req, res, next) => {
       status: 'success',
       code: HttpCode.OK,
       data: {
-        token
+        token,
+        user: {
+          email: user.email,
+          subscription: user.subscription,
+        },
       },
     })
   } catch (e) {
     next(e)
   }
 }
+
+const current = async (req, res, next) => {
+  try {
+    const token = req.get('Authorization')?.split(' ')[1]
+    const user = await findByToken(token)
+    return res.status(HttpCode.OK).json({
+      status: 'success',
+      code: HttpCode.OK,
+      data: {
+        user: user.email,
+        subscription: user.subscription,
+      },
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
 const logout = async (req, res, next) => {
   const id = req.user.id
   await Users.updateToken(id, null)
   return res.status(HttpCode.NO_CONTENT).json()
 }
 
-module.exports = { reg, login, logout }
+module.exports = { reg, login, logout, current }
