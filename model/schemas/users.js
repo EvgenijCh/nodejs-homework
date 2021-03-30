@@ -4,51 +4,62 @@ const gravatar = require('gravatar')
 const { Subscr } = require('../../helpers/constants')
 const SALT_WORK_FACTOR = 8
 
-const userSchema = new Schema({
-  users: {
-    email: String,
-    password: String,
-    subscription: {
-      type: String,
-      enum: [Subscr.FREE, Subscr.PRO, Subscr.PREMIUM],
-      default: Subscr.FREE,
+const userSchema = new Schema(
+  {
+    users: {
+      email: String,
+      password: String,
+      subscription: {
+        type: String,
+        enum: [Subscr.FREE, Subscr.PRO, Subscr.PREMIUM],
+        default: Subscr.FREE,
+      },
+      token: String,
     },
-    token: String,
-  },
-  name: {
-    type: String,
-    minlength: 2,
-    default: 'Guest'
-  },
-  email: {
-    type: String,
-    required: [true, 'Email required'],
-    unique: true,
-    validate(value) {
-      const re = /\S+@\S+\.\S+/
-      return re.test(String(value).toLowerCase())
+    name: {
+      type: String,
+      minlength: 2,
+      default: 'Guest',
+    },
+    email: {
+      type: String,
+      required: [true, 'Email required'],
+      unique: true,
+      validate(value) {
+        const re = /\S+@\S+\.\S+/
+        return re.test(String(value).toLowerCase())
+      },
+    },
+    password: {
+      type: String,
+      required: [true, 'Password required'],
+    },
+    avatar: {
+      type: String,
+      default: function () {
+        return gravatar.url(this.email, { s: '250' }, true)
+      },
+    },
+    imgIdCloud: {
+      type: String,
+      default: null,
+    },
+    token: {
+      type: String,
+      default: null,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verifyToken: {
+      type: String,
+      require: [true, 'Verify token required'],
     }
   },
-  password: {
-    type: String,
-    required: [true, 'Password required'],
-  },
-  avatar: {
-    type: String,
-    default: function () {
-      return gravatar.url(this.email, { s: '250' }, true)
-    }
-  },
-  imgIdCloud: {
-    type: String,
-    default: null,
-  },
-  token: {
-    type: String,
-    default: null
-  }
-},
-{ versionKey: false, timestamps: false })
+
+  { versionKey: false, timestamps: false },
+)
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
