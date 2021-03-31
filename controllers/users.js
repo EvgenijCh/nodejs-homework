@@ -172,7 +172,7 @@ const saveAvatarToCloud = async (req) => {
 
 const verify = async (req, res, next) => {
   try {
-    const user = Users.findByVerifyToken(req.params.token)
+    const user = await Users.findByVerifyToken(req.params.token)
     if (user) {
       await Users.updateVerifyToken(user.id, true, null)
       return res.json({

@@ -1,7 +1,7 @@
 const Mailgen = require('mailgen')
 const sgMail = require('@sendgrid/mail')
 const config = require('../config/email.json')
-// const { verify } = require('../controllers/users')
+const { verify } = require('../controllers/users')
 require('dotenv').config()
 
 class EmailService {
