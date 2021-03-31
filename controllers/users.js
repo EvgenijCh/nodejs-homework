@@ -23,7 +23,7 @@ const uploadCloud = promisify(cloudinary.uploader.upload)
 
 const reg = async (req, res, next) => {
   try {
-    const { email, name } = req.body
+    const { email } = req.body
     const user = await Users.findByEmail(email)
     if (user) {
       return res.status(HttpCode.CONFLICT).json({
@@ -35,10 +35,10 @@ const reg = async (req, res, next) => {
     }
     const verifyToken = nanoid()
     const emailService = new EmailService(process.env.NODE_ENV)
-    await emailService.sendEmail(verifyToken, email, name)
+    await emailService.sendEmail(verifyToken, email)
     const newUser = await Users.create({
       ...req.body,
-      verify: false,
+      // verify: false,
       verifyToken
     })
     return res.status(HttpCode.CREATED).json({
@@ -47,7 +47,7 @@ const reg = async (req, res, next) => {
       data: {
         id: newUser.id,
         email: newUser.email,
-        name: newUser.name,
+        // name: newUser.name,
         subscription: newUser.subscription,
         avatar: newUser.avatar,
       },

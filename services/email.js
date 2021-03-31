@@ -1,7 +1,7 @@
 const Mailgen = require('mailgen')
 const sgMail = require('@sendgrid/mail')
 const config = require('../config/email.json')
-const { verify } = require('../controllers/users')
+// const { verify } = require('../controllers/users')
 require('dotenv').config()
 
 class EmailService {
@@ -50,12 +50,12 @@ class EmailService {
     return mailGenerator.generate(template)
   }
 
-  async sendEmail(verifyToken, email, name) {
-    const emailBody = this.#createTemplate(verifyToken, name)
+  async sendEmail(verifyToken, email) {
+    const emailBody = this.#createTemplate(verifyToken)
     this.#sender.setApiKey(process.env.SENDGRID_API_KEY)
     const msg = {
       to: email,
-      from: "no-reply@system-contacts.com", // Use the email address or domain you verified above
+      from: "nsvt@online.ua", // Use the email address or domain you verified above
       subject: "Подтверждение регистрации",
       html: emailBody,
     };
